@@ -1,0 +1,25 @@
+{
+  "name": "shenlan",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "blueimp-canvas-to-blob": "^3.3.0",
+    "bootstrap": "^3.3.6",
+    "express": "^4.13.4",
+    "formidable": "^1.0.17",
+    "fs-extra": "^0.30.0",
+    "jquery": "^2.2.3",
+    "js-yaml": "^3.6.1",
+    "lodash": "^4.11.2",
+    "multer": "^1.1.0",
+    "serve-static": "^1.10.2",
+    "toastr": "^2.1.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Alex Chao",
+  "license": "MIT"
+}

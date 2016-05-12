@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="node_modules/toastr/build/toastr.min.css">
+  <title>Shenlan Image Task</title>
+  <style>
+  body {
+    background: #f4f4f4;
+    overflow-y: scroll;
+  }
+  canvas {
+    border: 1px dotted #aaa;
+  }
+  </style>
+</head>
+<body>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-8">
+        <h2>Preview</h2>
+        <canvas id="canvas" width="800" height="800"></canvas>
+      </div>
+      <div class="col-md-4">
+        <h2>Menu</h2>
+        <form action="" class="form" id="menu-form">
+          <button type="button" class="btn btn-default prev" disabled>Previous</button>
+          <button type="button" class="btn btn-default next" disabled>Next</button>
+          <button type="button" class="btn btn-info start" disabled>Start</button>
+          <button type="button" class="btn btn-primary save" disabled>Save</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <script src="node_modules/jquery/dist/jquery.min.js"></script>
+  <script src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+  <script src="node_modules/blueimp-canvas-to-blob/js/canvas-to-blob.min.js"></script>
+  <script src="node_modules/toastr/build/toastr.min.js"></script>
+  <script src="client/js/layer.js"></script>
+  <script src="client/js/app.js"></script>
+</body>
+</html>
