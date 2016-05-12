@@ -1,7 +1,7 @@
 {
-  "name": "shenlan",
+  "name": "sl-image-automatic",
   "version": "0.1.0",
-  "description": "",
+  "description": "Handle the images in Shenlan Network Studio automatically",
   "main": "index.js",
   "dependencies": {
     "blueimp-canvas-to-blob": "^3.3.0",
