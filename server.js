@@ -9,13 +9,14 @@ var serveStatic = require('serve-static');
 var formidable = require('formidable');
 
 var app = express();
+var cwd = process.cwd();
 var serve = serveStatic(__dirname, {'index': ['index.html', 'index.htm']});
 
 var defaults = {
   imgSrc: 'imgSrc',
   imgDest: 'imgDest'
 };
-var configFilePath = path.join(__dirname, '_config.yml');
+var configFilePath = path.join(cwd, '_config.yml');
 var config;
 
 try {
@@ -24,8 +25,8 @@ try {
 } catch (e) {
   config = {};
 }
-var imgSrc = path.join(__dirname, config.imgSrc || defaults.imgSrc);
-var imgDest = path.join(__dirname, config.imgDest || defaults.imgDest);
+var imgSrc = path.join(cwd, config.imgSrc || defaults.imgSrc);
+var imgDest = path.join(cwd, config.imgDest || defaults.imgDest);
 
 app.use(serve);
 
