@@ -1,6 +1,6 @@
 {
   "name": "sl-image-automatic",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Handle the images in Shenlan Network Studio automatically",
   "main": "index.js",
   "dependencies": {
