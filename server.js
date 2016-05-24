@@ -11,29 +11,47 @@ var formidable = require('formidable');
 var app = express();
 var serve = serveStatic(__dirname, {'index': ['index.html', 'index.htm']});
 
-var config = yaml.safeLoad(fs.readFileSync('_config.yml'), 'utf8'));
-var imgSrc = path.join(__dirname, config.imgSrc);
-var imgDest = path.join(__dirname, config.imgDest);
+var defaults = {
+  imgSrc: 'imgSrc',
+  imgDest: 'imgDest'
+};
+var configFilePath = path.join(__dirname, '_config.yml');
+var config;
+
+try {
+  fs.accessSync(configFilePath, fs.R_OK);
+  config = yaml.safeLoad(fs.readFileSync('_config.yml'), 'utf8');
+} catch (e) {
+  config = {};
+}
+var imgSrc = path.join(__dirname, config.imgSrc || defaults.imgSrc);
+var imgDest = path.join(__dirname, config.imgDest || defaults.imgDest);
 
 app.use(serve);
 
 app.get('/files', function (req, res, next) {
-  fs.readdir(imgSrc, function (err, files) {
+  fse.ensureDir(imgSrc, function (err) {
     if (err) {
-      res.status(404).end();
+      console.error(err);
     } else {
-      var data = _.chain(files)
-        .map(function (file) {
-          return {
-            name: file
-          };
-        })
-        .filter(function (file) {
-          return path.extname(file.name) === '.jpg';
-        })
-        .value();
+      fs.readdir(imgSrc, function (err, files) {
+        if (err) {
+          res.status(404).end();
+        } else {
+          var data = _.chain(files)
+            .map(function (file) {
+              return {
+                name: file
+              };
+            })
+            .filter(function (file) {
+              return path.extname(file.name) === '.jpg';
+            })
+            .value();
 
-      res.json(data);
+          res.json(data);
+        }
+      });
     }
   });
 });
@@ -41,20 +59,26 @@ app.get('/files', function (req, res, next) {
 app.post('/upload', function (req, res, next) {
   var form = new formidable.IncomingForm();
 
-  form.uploadDir = imgDest;
-  form.keepExtensions = true;
-  form.type = 'multipart';
+  fse.ensureDir(imgDest, function (err) {
+    if (err) {
+      console.error(err);
+    } else {
+      form.uploadDir = imgDest;
+      form.keepExtensions = true;
+      form.type = 'multipart';
 
-  form.parse(req, function (err, fields, files) {
-    res.status(200).json({ fields: fields, files: files });
-    _.forEach(files, function (file, key) {
-      var newPath = path.join(path.dirname(file.path), file.name);
-      fse.move(file.path, newPath, function (err) {
-        if (err) {
-          console.error(err);
-        }
+      form.parse(req, function (err, fields, files) {
+        res.status(200).json({ fields: fields, files: files });
+        _.forEach(files, function (file, key) {
+          var newPath = path.join(path.dirname(file.path), file.name);
+          fse.move(file.path, newPath, function (err) {
+            if (err) {
+              console.error(err);
+            }
+          });
+        });
       });
-    });
+    }
   });
 });
 
