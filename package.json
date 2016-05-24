@@ -2,14 +2,18 @@
   "name": "sl-image-automatic",
   "version": "0.2.0",
   "description": "Handle the images automatically",
-  "main": "index.js",
-  "author": "Alex Chao",
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:Alex1990/sl-image-automatic.git"
+  "main": "server.js",
+  "bin": {
+    "slia": "./bin/sl-image-automatic"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Alex Chao",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:Alex1990/sl-image-automatic.git"
   },
   "dependencies": {
     "blueimp-canvas-to-blob": "^3.3.0",
@@ -24,6 +28,5 @@
     "serve-static": "^1.10.2",
     "toastr": "^2.1.2"
   },
-  "devDependencies": {},
-  "license": "MIT"
+  "devDependencies": {}
 }
