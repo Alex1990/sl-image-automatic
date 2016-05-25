@@ -1,6 +1,6 @@
 {
   "name": "sl-image-automatic",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Handle the images automatically",
   "main": "server.js",
   "bin": {

@@ -24,6 +24,8 @@ try {
 } catch (e) {
   config = {};
 }
+
+var PORT = Number(config.port) || 9000;
 var imgSrc = path.join(cwd, config.imgSrc || defaults.imgSrc);
 var imgDest = path.join(cwd, config.imgDest || defaults.imgDest);
 
@@ -83,6 +85,6 @@ app.post('/upload', function (req, res, next) {
   });
 });
 
-app.listen(9000, function () {
-  console.log('127.0.0.1:9000');
+app.listen(PORT, function () {
+  console.log('127.0.0.1:%d', PORT);
 });
