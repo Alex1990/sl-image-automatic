@@ -10,7 +10,6 @@ var formidable = require('formidable');
 
 var app = express();
 var cwd = process.cwd();
-var serve = serveStatic(__dirname, {'index': ['index.html', 'index.htm']});
 
 var defaults = {
   imgSrc: 'imgSrc',
@@ -28,7 +27,8 @@ try {
 var imgSrc = path.join(cwd, config.imgSrc || defaults.imgSrc);
 var imgDest = path.join(cwd, config.imgDest || defaults.imgDest);
 
-app.use(serve);
+app.use(serveStatic(__dirname, {'index': ['index.html', 'index.htm']}));
+app.use(serveStatic(cwd));
 
 app.get('/files', function (req, res, next) {
   fse.ensureDir(imgSrc, function (err) {

@@ -25,7 +25,7 @@ $(function () {
   var layer = new Layer(canvas);
 
   var imageList = {
-    root: '/imageSource',
+    root: '/imgSrc',
     currentFile: null,
     files: [],
     getPath: function () {
