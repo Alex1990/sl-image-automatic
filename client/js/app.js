@@ -80,7 +80,7 @@ $(function () {
     if (src) {
       layer.loadImage(src, function (err, image) {
         var $menuForm = $('#menu-form');
-        var $buttons = $menuForm.find('button.start, button.save');
+        var $buttons = $menuForm.find('button.reload, button.start, button.save');
         if (err) {
           $buttons.prop('disabled', true);
           throw new Error('Load image error.');
@@ -108,6 +108,10 @@ $(function () {
     } else {
       $nextBtn.prop('disabled', true);
     }
+  }
+
+  function reloadImage() {
+    loadImage();
   }
 
   function prevImage() {
@@ -161,6 +165,7 @@ $(function () {
     var $menuForm = $('#menu-form');
 
     $menuForm
+      .on('click', '.reload', reloadImage)
       .on('click', '.prev', prevImage)
       .on('click', '.next', nextImage)
       .on('click', '.start', function () {
