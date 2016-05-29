@@ -139,10 +139,19 @@ $(function () {
         processData: false,
         contentType: false,
         success: function (res) {
-          toastr.success('', 'Save the image successfully.');
+          toastr.success('', 'Save the image successfully.', {
+            timeOut: 2500,
+            positionClass: 'toast-bottom-right'
+          });
+          var $nextBtn = $('#menu-form button.next');
+          if (!$nextBtn.prop('disabled')) {
+            $nextBtn.click();
+          }
         },
         error: function (xhr) {
-          toastr.error('', 'Failed in saving the image.');
+          toastr.error('', 'Failed in saving the image.', {
+            positionClass: 'toast-bottom-right'
+          });
         }
       });
     }, 'image/jpeg', 1);
