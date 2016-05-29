@@ -80,7 +80,7 @@ $(function () {
     if (src) {
       layer.loadImage(src, function (err, image) {
         var $menuForm = $('#menu-form');
-        var $buttons = $menuForm.find('button.reload, button.start, button.save');
+        var $buttons = $menuForm.find('button.clearImgSrc, button.reload, button.start, button.save');
         if (err) {
           $buttons.prop('disabled', true);
           throw new Error('Load image error.');
@@ -110,6 +110,26 @@ $(function () {
     }
   }
 
+  function clearImgSrc() {
+    if (confirm('Confirm to clear the "imgSrc" directory?')) {
+      $.ajax({
+        url: '/clearImgSrc',
+        success: function (res) {
+          toastr.success('', 'Clear all done', {
+            timeOut: 2500,
+            positionClass: 'toast-bottom-right'
+          });
+          location.reload();
+        },
+        error: function (xhr) {
+          toastr.error('', 'Failed in clearing', {
+            positionClass: 'toast-bottom-right'
+          });
+        }
+      });
+    }
+  }
+
   function reloadImage() {
     loadImage();
   }
@@ -135,8 +155,8 @@ $(function () {
       data.append(basename(filename, '.jpg'), file);
 
       $.ajax({
-        url: '/upload',
         type: 'POST',
+        url: '/upload',
         data: data,
         cache: false,
         dataType: 'json',
@@ -165,6 +185,7 @@ $(function () {
     var $menuForm = $('#menu-form');
 
     $menuForm
+      .on('click', '.clearImgSrc', clearImgSrc)
       .on('click', '.reload', reloadImage)
       .on('click', '.prev', prevImage)
       .on('click', '.next', nextImage)

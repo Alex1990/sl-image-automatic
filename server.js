@@ -85,6 +85,17 @@ app.post('/upload', function (req, res, next) {
   });
 });
 
+app.get('/clearImgSrc', function (req, res) {
+  fse.emptyDir(imgSrc, function (err) {
+    if (err) {
+      console.error(err);
+      res.status(404).end();
+    } else {
+      res.status(200).end();
+    }
+  });
+});
+
 app.listen(PORT, function () {
   console.log('127.0.0.1:%d', PORT);
 });
