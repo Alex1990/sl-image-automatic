@@ -74,7 +74,7 @@ app.post('/upload', function (req, res, next) {
         res.status(200).json({ fields: fields, files: files });
         _.forEach(files, function (file, key) {
           var newPath = path.join(path.dirname(file.path), file.name);
-          fse.move(file.path, newPath, function (err) {
+          fse.move(file.path, newPath, { clobber: true }, function (err) {
             if (err) {
               console.error(err);
             }
