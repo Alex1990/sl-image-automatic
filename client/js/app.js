@@ -111,23 +111,28 @@ $(function () {
   }
 
   function clearImgSrc() {
-    if (confirm('Confirm to clear the "imgSrc" directory?')) {
-      $.ajax({
-        url: '/clearImgSrc',
-        success: function (res) {
-          toastr.success('', 'Clear all done', {
-            timeOut: 2500,
-            positionClass: 'toast-bottom-right'
-          });
-          location.reload();
-        },
-        error: function (xhr) {
-          toastr.error('', 'Failed in clearing', {
-            positionClass: 'toast-bottom-right'
+    vex.dialog.confirm({
+      message: 'Confirm to clear the "imgSrc" directory?',
+      callback: function (value) {
+        if (value) {
+          $.ajax({
+            url: '/clearImgSrc',
+            success: function (res) {
+              toastr.success('', 'Clear all done', {
+                timeOut: 2500,
+                positionClass: 'toast-bottom-right'
+              });
+              location.reload();
+            },
+            error: function (xhr) {
+              toastr.error('', 'Failed in clearing', {
+                positionClass: 'toast-bottom-right'
+              });
+            }
           });
         }
-      });
-    }
+      }
+    });
   }
 
   function reloadImage() {
