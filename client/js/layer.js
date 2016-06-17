@@ -73,7 +73,73 @@
     canvas.width = W2;
     canvas.height = H2;
     canvas.getContext("2d").putImageData(img2, 0, 0);
-  }
+  };
+
+  util.bilinearScale = function (canvas, dw, dh) {
+    dw = Math.floor(dw);
+    dh = Math.floor(dh);
+
+    var ctx = canvas.getContext('2d');
+    var sw = canvas.width;
+    var sh = canvas.height;
+    var sImg = ctx.getImageData(0, 0, sw, sh);
+    var sImgData = sImg.data;
+    var xRatio = sw / dw;
+    var yRatio = sh / dh;
+    var dImg = new ImageData(dw, dh);
+    var dImgData = dImg.data;
+    var x, y;
+    var xDiff, ydiff;
+    var sIndex, dIndex;
+    var pa, pb, pc, pd;
+    var r, g, b, a;
+
+    for (var i = 0; i < dh; i++) {
+      for (var j = 0; j < dw; j++) {
+        x = Math.floor(j * xRatio);
+        y = Math.floor(i * yRatio);
+        xDiff = (xRatio * j) - x;
+        yDiff = (yRatio * i) - y;
+        sIndex = (y * sw + x) * 4;
+        dIndex = (i * dw + j) * 4;
+
+        pa = sIndex;
+        pb = sIndex + 4;
+        pc = sIndex + sw * 4;
+        pd = sIndex + sw * 4 + 4;
+
+        r = sImgData[pa] * (1 - xDiff) * (1 - yDiff) + sImgData[pb] * xDiff * (1 - yDiff) +
+            sImgData[pc] * yDiff * (1 - xDiff) + sImgData[pd] * xDiff * yDiff;
+
+        g = sImgData[pa + 1] * (1 - xDiff) * (1 - yDiff) + sImgData[pb + 1] * xDiff * (1 - yDiff) +
+            sImgData[pc + 1] * yDiff * (1 - xDiff) + sImgData[pd + 1] * xDiff * yDiff;
+
+        b = sImgData[pa + 2] * (1 - xDiff) * (1 - yDiff) + sImgData[pb + 2] * xDiff * (1 - yDiff) +
+            sImgData[pc + 2] * yDiff * (1 - xDiff) + sImgData[pd + 2] * xDiff * yDiff;
+
+        a = sImgData[pa + 3] * (1 - xDiff) * (1 - yDiff) + sImgData[pb + 3] * xDiff * (1 - yDiff) +
+            sImgData[pc + 3] * yDiff * (1 - xDiff) + sImgData[pd + 3] * xDiff * yDiff;
+
+        r = Math.min(255, r);
+        r = Math.max(0, r);
+        g = Math.min(255, g);
+        g = Math.max(0, g);
+        b = Math.min(255, b);
+        b = Math.max(0, b);
+        a = Math.min(255, a);
+        a = Math.max(0, a);
+
+        dImgData[dIndex] = r;
+        dImgData[dIndex + 1] = g;
+        dImgData[dIndex + 2] = b;
+        dImgData[dIndex + 3] = a;
+      }
+    }
+
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, sw, sh);
+    ctx.putImageData(dImg, (sw - dw) / 2, (sh - dh) / 2);
+  };
 
   util.isSameColor = function (color1, color2, delta) {
     return Math.abs(color1.r - color2.r) <= delta &&
@@ -153,21 +219,24 @@
     if (rx == null) return;
     if (ry == null) ry = rx;
 
-    var tmpCanvas = document.createElement('canvas');
-    var tmpCtx = tmpCanvas.getContext('2d');
+    // var tmpCanvas = document.createElement('canvas');
+    // var tmpCtx = tmpCanvas.getContext('2d');
     var w = this.canvas.width;
     var h = this.canvas.height;
-    var deltaX = (1 - rx) * w;
-    var deltaY = (1 - ry) * h;
+    var dw = w * rx;
+    var dh = h * ry;
+    // var deltaX = (1 - rx) * w;
+    // var deltaY = (1 - ry) * h;
 
-    tmpCanvas.width = w;
-    tmpCanvas.height = h;
+    // tmpCanvas.width = w;
+    // tmpCanvas.height = h;
 
-    tmpCtx.drawImage(canvas, 0, 0, w, h);
-    util.resample_hermite(tmpCanvas, w, h, w * rx, h * ry);
-    this.ctx.fillStyle = '#fff';
-    this.ctx.fillRect(0, 0, w, h);
-    this.ctx.drawImage(tmpCanvas, 0, 0, w * rx, h * ry, deltaX / 2, deltaY / 2, w - deltaX, h - deltaY);
+    // tmpCtx.drawImage(canvas, 0, 0, w, h);
+    // util.resample_hermite(tmpCanvas, w, h, w * rx, h * ry);
+    // this.ctx.fillStyle = '#fff';
+    // this.ctx.fillRect(0, 0, w, h);
+    // this.ctx.drawImage(tmpCanvas, 0, 0, w * rx, h * ry, deltaX / 2, deltaY / 2, w - deltaX, h - deltaY);
+    util.bilinearScale(this.canvas, dw, dh);
   };
 
   Layer.prototype.imageRect = function () {
