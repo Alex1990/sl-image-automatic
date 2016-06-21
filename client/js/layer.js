@@ -216,27 +216,42 @@
   };
 
   Layer.prototype.scale = function(rx, ry) {
-    if (rx == null) return;
-    if (ry == null) ry = rx;
-
-    // var tmpCanvas = document.createElement('canvas');
-    // var tmpCtx = tmpCanvas.getContext('2d');
     var w = this.canvas.width;
     var h = this.canvas.height;
     var dw = w * rx;
     var dh = h * ry;
-    // var deltaX = (1 - rx) * w;
-    // var deltaY = (1 - ry) * h;
 
-    // tmpCanvas.width = w;
-    // tmpCanvas.height = h;
-
-    // tmpCtx.drawImage(canvas, 0, 0, w, h);
-    // util.resample_hermite(tmpCanvas, w, h, w * rx, h * ry);
-    // this.ctx.fillStyle = '#fff';
-    // this.ctx.fillRect(0, 0, w, h);
-    // this.ctx.drawImage(tmpCanvas, 0, 0, w * rx, h * ry, deltaX / 2, deltaY / 2, w - deltaX, h - deltaY);
     util.bilinearScale(this.canvas, dw, dh);
+  };
+
+  Layer.prototype.resample = function(rx, ry) {
+    if (rx == null) return;
+    if (ry == null) ry = rx;
+
+    var w = this.canvas.width;
+    var h = this.canvas.height;
+    var dw =  Math.round(w / rx);
+    var dh =  Math.round(h / ry);
+
+    if (rx > 1 && ry > 1 && dw >= 500 && dh >= 500) {
+      var sx = (w - dw) / 2;
+      var sy = (h - dh) / 2;
+
+      var tmpCanvas = document.createElement('canvas');
+      var tmpCtx = tmpCanvas.getContext('2d');
+
+      tmpCanvas.width = w;
+      tmpCanvas.height = h;
+
+      tmpCtx.drawImage(this.canvas, 0, 0);
+
+      this.canvas.width = dw;
+      this.canvas.height = dh;
+
+      this.ctx.drawImage(tmpCanvas, sx, sy, dw, dh, 0, 0, dw, dh);
+    } else {
+      this.scale(rx, ry);
+    }
   };
 
   Layer.prototype.imageRect = function () {
@@ -378,7 +393,7 @@
     var expectRatio = minFactor + Math.pow(ratio - 1, 1/3) * 0.075;
     var factor = expectRatio / actualRatio;
 
-    this.scale(factor);
+    this.resample(factor);
   };
 
   window.Layer = Layer;
