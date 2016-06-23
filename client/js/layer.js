@@ -198,6 +198,10 @@
     });
   };
 
+  Layer.prototype.clear = function () {
+    this.canvas.width = this.canvas.width;
+  };
+
   Layer.prototype.move = function (x, y) {
     var tmpCanvas = document.createElement('canvas');
     var tmpCtx = tmpCanvas.getContext('2d');
