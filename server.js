@@ -32,6 +32,10 @@ var imgDest = path.join(cwd, config.imgDest || defaults.imgDest);
 app.use(serveStatic(__dirname, {'index': ['index.html', 'index.htm']}));
 app.use(serveStatic(cwd));
 
+app.get('/image/*', function (req, res, next) {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
 app.get('/files', function (req, res, next) {
   fse.ensureDir(imgSrc, function (err) {
     if (err) {

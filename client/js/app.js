@@ -1,40 +1,38 @@
 $(function () {
 
-  function dirname(path, withDilimiter) {
+  // Utility
+
+  var util = {};
+
+  util.dirname = function (path, withDilimiter) {
     path = String(path);
     var index = path.lastIndexOf('/');
     return path.slice(0, index + (withDilimiter ? 1 : 0));
   }
 
-  function basename(path, suffix) {
+  util.basename = function (path, suffix) {
     path = String(path);
     suffix = String(suffix);
     var index = path.lastIndexOf('/');
     var filename = path.slice(index + 1);
     var suffixIndex = filename.indexOf(suffix);
-    return filename.slice(0, suffixIndex);
+    return suffixIndex > -1 ? filename.slice(0, suffixIndex) : filename;
   }
 
-  function extname(path) {
+  util.extname = function (path) {
     path = String(path);
     var index = path.lastIndexOf('.');
     return path.slice(index);
   }
 
+  // App
+
   var canvas = $('#canvas')[0];
   var layer = new Layer(canvas);
 
   var imageList = {
-    root: '/imgSrc',
-    currentFile: null,
+    root: '/imgSrc/',
     files: [],
-    getPath: function () {
-      if (this.currentFile) {
-        return this.root + '/' + this.currentFile.name;
-      } else {
-        return null;
-      }
-    },
     loadFileList: function () {
       var that = this;
       return $.getJSON('/files', function (files) {
@@ -43,68 +41,38 @@ $(function () {
             file._index = index;
             return file;
           });
-          if (!that.currentFile) {
-            that.currentFile = that.files[0];
-          }
+        } else {
+          that.files = [];
         }
       });
-    },
-    prev: function () {
-      var files = this.files;
-      var currentFile = this.currentFile;
-      if (files.length && currentFile) {
-        if (currentFile._index > 0) {
-          currentFile = files[currentFile._index - 1];
-        } else {
-          currentFile = null;
-        }
-        this.currentFile = currentFile;
-      }
-    },
-    next: function () {
-      var files = this.files;
-      var currentFile = this.currentFile;
-      if (files.length && currentFile) {
-        if (currentFile._index < files.length - 1) {
-          currentFile = files[currentFile._index + 1];
-        } else {
-          currentFile = null;
-        }
-        this.currentFile = currentFile;
-      }
     }
   };
 
-  function loadImage() {
-    var src = imageList.getPath();
-    if (src) {
-      layer.loadImage(src, function (err, image) {
-        var $menuForm = $('#menu-form');
-        var $buttons = $menuForm.find('button.clearImgSrc, button.reload, button.start, button.save');
-        if (err) {
-          $buttons.prop('disabled', true);
-          throw new Error('Load image error.');
-        } else {
-          $buttons.prop('disabled', false);
-        }
-      });
-    }
-  }
+  function setNavbtnState(name) {
+    var files = imageList.files;
+    var index = -1;
 
-  function setNavbtnState() {
+    for (var i = 0; i < files.length; i++) {
+      if (files[i].name === name) {
+        index = i;
+        break;
+      }
+    }
+
     var $menuForm = $('#menu-form');
     var $prevBtn = $menuForm.find('button.prev');
     var $nextBtn = $menuForm.find('button.next');
-    var currentFile = imageList.currentFile;
 
-    if (currentFile._index > 0) {
+    if (index > 0) {
       $prevBtn.prop('disabled', false);
+      $prevBtn.data('image-name', files[index - 1].name);
     } else {
       $prevBtn.prop('disabled', true);
     }
 
-    if (currentFile._index < imageList.files.length - 1) {
+    if (index < files.length - 1) {
       $nextBtn.prop('disabled', false);
+      $nextBtn.data('image-name', files[index + 1].name);
     } else {
       $nextBtn.prop('disabled', true);
     }
@@ -122,7 +90,9 @@ $(function () {
                 timeOut: 2500,
                 positionClass: 'toast-bottom-right'
               });
-              location.reload();
+              $('#menu-form button').prop('disabled', true);
+              layer.clear();
+              page('/');
             },
             error: function (xhr) {
               toastr.error('', 'Failed in clearing', {
@@ -135,29 +105,23 @@ $(function () {
     });
   }
 
-  function reloadImage() {
-    loadImage();
-  }
-
-  function prevImage() {
-    imageList.prev();
-    setNavbtnState();
-    loadImage();
+  function prevImage(name) {
+    var name = $('#menu-form button.prev').data('image-name');
+    page('/image/' + name);
   }
 
   function nextImage() {
-    imageList.next();
-    setNavbtnState();
-    loadImage();
+    var name = $('#menu-form button.next').data('image-name');
+    page('/image/' + name);
   }
 
   function saveImage() {
+    var filename = $(this).data('image-name');
     layer.canvas.toBlob(function (blob) {
-      var filename = imageList.currentFile.name;
       var file = new File([blob], filename);
       var data = new FormData();
 
-      data.append(basename(filename, '.jpg'), file);
+      data.append(util.basename(filename, '.jpg'), file);
 
       $.ajax({
         type: 'POST',
@@ -186,36 +150,61 @@ $(function () {
     }, 'image/jpeg', 1);
   }
 
-  function bindEvents() {
-    var $menuForm = $('#menu-form');
-
-    $menuForm
-      .on('click', '.clearImgSrc', clearImgSrc)
-      .on('click', '.reload', reloadImage)
-      .on('click', '.prev', prevImage)
-      .on('click', '.next', nextImage)
-      .on('click', '.start', function () {
-        layer.centerAndScale();
-      })
-      .on('click', '.save', saveImage);
-  }
-
-  function init() {
-    bindEvents();
-    imageList.loadFileList().then(function () {
-      var files = imageList.files;
-      var currentFile = imageList.currentFile;    
+  function loadImage() {
+    var name = $('#menu-form button.reload').data('image-name');
+    var filename = imageList.root + name;
+    layer.loadImage(filename, function (err, image) {
       var $menuForm = $('#menu-form');
-
-      if (currentFile) {
-        loadImage();
-      }
-      if (files.length > 1) {
-        $menuForm.find('.next').prop('disabled', false);
+      var $buttons = $menuForm.find('button.clearImgSrc, button.reload, button.start, button.save');
+      if (err) {
+        $buttons.prop('disabled', true);
+        throw new Error('Load image error:' + err);
+      } else {
+        $buttons.prop('disabled', false);
       }
     });
   }
 
-  init();
+  function bindEvents() {
+    var $menuForm = $('#menu-form');
+    $menuForm.off('.image')
+      .on('click.image', '.clearImgSrc', clearImgSrc)
+      .on('click.image', '.reload', loadImage)
+      .on('click.image', '.prev', prevImage)
+      .on('click.image', '.next', nextImage)
+      .on('click.image', '.start', function () {
+        layer.centerAndScale();
+      })
+      .on('click.image', '.save', saveImage);
+  }
 
+  function index() {
+    imageList.loadFileList().then(function () {
+      var files = imageList.files;
+      console.log(files);
+
+      if (files && files.length > 0) {
+        page('/image/' + util.basename(files[0].name));
+      }
+    });
+  }
+
+  function image(ctx, next) {
+    var name = ctx.params.name;
+    var $menuForm = $('#menu-form');
+
+    $menuForm.find('button.reload, button.save').data('image-name', name);
+
+    imageList.loadFileList().then(function () {
+      setNavbtnState(name);
+      loadImage();
+      bindEvents();
+    });
+  }
+
+  // Router
+
+  page('/', index);
+  page('/image/:name', image);
+  page();
 });

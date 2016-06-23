@@ -1,6 +1,6 @@
 {
   "name": "sl-image-automatic",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "description": "Handle the images automatically",
   "main": "server.js",
   "bin": {
@@ -25,6 +25,7 @@
     "js-yaml": "^3.6.1",
     "lodash": "^4.11.2",
     "multer": "^1.1.0",
+    "page": "^1.7.1",
     "serve-static": "^1.10.2",
     "toastr": "^2.1.2",
     "vex-js": "^2.3.4"
