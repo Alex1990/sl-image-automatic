@@ -369,7 +369,7 @@
   };
 
   Layer.prototype.centerAndScale = function () {
-    var minFactor = 0.65;
+    var minFactor = 0.62;
     var centerPoint = {
       x: this.width / 2,
       y: this.height / 2
@@ -392,9 +392,9 @@
       actualRatio = imgRect.width / this.width;
     }
 
-    ratio = Math.min(ratio, 4);
+    ratio = Math.min(ratio, 5);
 
-    var expectRatio = minFactor + Math.pow(ratio - 1, 1/3) * 0.09;
+    var expectRatio = minFactor + Math.pow(ratio - 1, 1/3) * 0.1;
     var factor = expectRatio / actualRatio;
 
     this.resample(factor);
